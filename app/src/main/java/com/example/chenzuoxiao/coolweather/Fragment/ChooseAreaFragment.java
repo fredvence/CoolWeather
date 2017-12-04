@@ -157,7 +157,7 @@ public class ChooseAreaFragment extends Fragment {
             currentLevel = LEVEL_CITY;
         }else {
             int provinceCode = selectedProvince.getProvinceCode();
-            String address = "http://guolin.tech/api/china" + provinceCode;
+            String address = "http://guolin.tech/api/china/" + provinceCode;
             queryFromServer(address, "city");
         }
     }
@@ -227,7 +227,7 @@ public class ChooseAreaFragment extends Fragment {
      * 关闭进度对话框
      */
     private void closeProgressDialog(){
-        if (progressDialog == null) {
+        if (progressDialog != null) {
             progressDialog.dismiss();
         }
     }
