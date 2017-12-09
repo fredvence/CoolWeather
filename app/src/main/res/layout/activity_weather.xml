@@ -25,7 +25,7 @@
 
             <include layout="@layout/aqi"/>
 
-            <include layout="@layout/suggession"/>
+            <include layout="@layout/suggestion"/>
         </LinearLayout>
     </ScrollView>
 </FrameLayout>

@@ -6,7 +6,7 @@ package com.example.chenzuoxiao.coolweather.gson;
 
 public class AQI {
 
-    public AQICity aqiCity;
+    public AQICity City;
 
     public class AQICity{
 

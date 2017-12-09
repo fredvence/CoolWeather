@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -23,6 +24,7 @@ import okhttp3.Callback;
 import okhttp3.Response;
 
 public class WeatherActivity extends AppCompatActivity {
+    private static final  String TAG = "WeatherActivity";
 
     private ScrollView weatherLayout;
     private TextView titleCity;
@@ -32,7 +34,7 @@ public class WeatherActivity extends AppCompatActivity {
     private LinearLayout forecastLayout;
     private TextView aqiText;
     private TextView pm25Text;
-    private TextView comforText;
+    private TextView comfortText;
     private TextView carWashText;
     private TextView sportText;
 
@@ -51,10 +53,10 @@ public class WeatherActivity extends AppCompatActivity {
         forecastLayout = (LinearLayout) findViewById(R.id.forecast_layout);
         aqiText = (TextView) findViewById(R.id.aqi_text);
         pm25Text = (TextView) findViewById(R.id.pm25_text);
-        comforText = (TextView) findViewById(R.id.comfort_text);
+        comfortText = (TextView) findViewById(R.id.comfort_text);
         carWashText = (TextView) findViewById(R.id.car_wash_text);
         sportText = (TextView) findViewById(R.id.sport_text);
-
+        Log.d(TAG, "onCreate: 完成控件初始化");
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String weatherString = prefs.getString("weather", null);
         if (weatherString != null){
@@ -64,6 +66,7 @@ public class WeatherActivity extends AppCompatActivity {
         }else {
             //无缓存时，去服务器上查询天气
             String weatherId = getIntent().getStringExtra("weather_id");
+            Log.d(TAG, "onCreate: weatherId"+ weatherId);
             weatherLayout.setVisibility(View.INVISIBLE);
             requestWeather(weatherId);
         }
@@ -77,14 +80,17 @@ public class WeatherActivity extends AppCompatActivity {
     private void requestWeather(final String weatherId) {
 
         String weatherUrl ="http://guolin.tech/api/weather?cityid="+
-                weatherId + "&key=bc0418b57b2d4918819d3974ac1285d9";
+                weatherId + "&key=0b6013562b5f4e479f4d73a7d2750adb";
+        Log.d(TAG, "requestWeather: weatherId "+ weatherId);
                 HttpUtil.sendOkHttpRequest(weatherUrl, new Callback() {
                     @Override
                     public void onFailure(Call call, IOException e) {
+                        e.printStackTrace();
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 Toast.makeText(WeatherActivity.this, "获取天气失败", Toast.LENGTH_SHORT).show();
+
                             }
                         });
 
@@ -101,8 +107,10 @@ public class WeatherActivity extends AppCompatActivity {
                                 if (weather != null && "ok".equals(weather.status)){
                                     SharedPreferences.Editor editor = PreferenceManager.
                                             getDefaultSharedPreferences(WeatherActivity.this).edit();
+
                                     editor.putString("weather", responseText);
                                     editor.apply();
+                                    Log.d(TAG, "run: "+ weather);
                                     showWeatherInfo(weather);
                                 }else {
                                     Toast.makeText(WeatherActivity.this, "获取天气失败", Toast.LENGTH_SHORT).show();
@@ -115,7 +123,7 @@ public class WeatherActivity extends AppCompatActivity {
 
     public void showWeatherInfo(Weather weather){
         String cityName = weather.basic.cityName;
-        String updateTime = weather.basic.update.updateTime;
+        String updateTime = weather.basic.update.updateTime.split("")[1];
         String degree = weather.now.temperature + "℃";
         String weatherInfo = weather.now.more.info;
         titleCity.setText(cityName);
@@ -127,10 +135,10 @@ public class WeatherActivity extends AppCompatActivity {
         for (Forecast forecast: weather.forecastList) {
 
             View view = LayoutInflater.from(this).inflate(R.layout.forecast_item, forecastLayout, false);
-            TextView dateText = (TextView) findViewById(R.id.date_text);
-            TextView infoText = (TextView) findViewById(R.id.info_text);
-            TextView maxText = (TextView) findViewById(R.id.max_text);
-            TextView minText = (TextView) findViewById(R.id.min_text);
+            TextView dateText = (TextView) view.findViewById(R.id.date_text);
+            TextView infoText = (TextView) view.findViewById(R.id.info_text);
+            TextView maxText = (TextView) view.findViewById(R.id.max_text);
+            TextView minText = (TextView) view.findViewById(R.id.min_text);
             dateText.setText(forecast.date);
             infoText.setText(forecast.more.info);
             maxText.setText(forecast.temperature.max);
@@ -138,15 +146,16 @@ public class WeatherActivity extends AppCompatActivity {
             forecastLayout.addView(view);
         }
         if (weather.aqi != null){
-            aqiText.setText(weather.aqi.aqiCity.aqi);
-            pm25Text.setText(weather.aqi.aqiCity.pm25);
+
+            //aqiText.setText(weather.aqi.City.aqi);
+            //pm25Text.setText(weather.aqi.City.pm25);
 
         }
-        String comfort = "舒适度： " + weather.suggession.comfort;
-        String carWash = "洗车指数： " + weather.suggession.carWash;
-        String sport = "运动建议： " + weather.suggession.sport;
+        String comfort = "舒适度： " + weather.suggestion.comfort.info;
+        String carWash = "洗车指数： " + weather.suggestion.carWash.info;
+        String sport = "运动建议： " + weather.suggestion.sport.info;
 
-        comforText.setText(comfort);
+        comfortText.setText(comfort);
         carWashText.setText(carWash);
         sportText.setText(sport);
         weatherLayout.setVisibility(View.VISIBLE);
