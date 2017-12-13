@@ -110,7 +110,7 @@ public class WeatherActivity extends AppCompatActivity {
 
                                     editor.putString("weather", responseText);
                                     editor.apply();
-                                    Log.d(TAG, "run: "+ weather);
+                                    Log.d(TAG, "run: "+ responseText);
                                     showWeatherInfo(weather);
                                 }else {
                                     Toast.makeText(WeatherActivity.this, "获取天气失败", Toast.LENGTH_SHORT).show();
@@ -145,10 +145,10 @@ public class WeatherActivity extends AppCompatActivity {
             minText.setText(forecast.temperature.min);
             forecastLayout.addView(view);
         }
-        if (weather.aqi != null){
 
-            //aqiText.setText(weather.aqi.City.aqi);
-            //pm25Text.setText(weather.aqi.City.pm25);
+        if (weather.aqi != null){
+            aqiText.setText(weather.aqi.city.aqi);
+            pm25Text.setText(weather.aqi.city.pm25);
 
         }
         String comfort = "舒适度： " + weather.suggestion.comfort.info;
